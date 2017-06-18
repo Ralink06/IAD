@@ -1,26 +1,24 @@
 package model;
 
+import kmeans.KMeans;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class MLP {
-    private Layer inputLayer;
-    private Layer hiddenLayer;
-    private Layer outputLayer;
+    private int hiddenSize;
 
     private double[][] weightsForHidden;
     private double[][] weightsForOutput;
 
-    private MLP(MlpBuilder builder) {
-        inputLayer = new Layer(builder.numberOfInputNeurons, builder.withBias);
-        hiddenLayer = new Layer(builder.numberOfHiddenNeurons, builder.withBias);
-        outputLayer = new Layer(builder.numberOfOutputNeurons, builder.withBias);
+    private KMeans kMeans;
 
-        weightsForHidden = new double[builder.numberOfHiddenNeurons + 1][builder.numberOfInputNeurons + 1];
-        weightsForOutput = new double[builder.numberOfOutputNeurons + 1][builder.numberOfHiddenNeurons + 1];
-
+    private MLP(KMeans kMeans, int hiddenSize) {
+        this.kMeans = kMeans;
+        this.hiddenSize = hiddenSize;
         generateRandomWeights(new Random());
+
     }
 
 
@@ -127,40 +125,6 @@ public class MLP {
         return random.nextDouble() * 2 + (-1);
     }
 
-    public static class MlpBuilder {
-        private int numberOfInputNeurons;
-        private int numberOfHiddenNeurons;
-        private int numberOfOutputNeurons;
-        private boolean withBias;
-
-        public MlpBuilder() {
-
-        }
-
-        public MlpBuilder inputNeurons(int numberOfInputsNeurons) {
-            this.numberOfInputNeurons = numberOfInputsNeurons;
-            return this;
-        }
-
-        public MlpBuilder hiddenNeurons(int numberOfHiddenNeurons) {
-            this.numberOfHiddenNeurons = numberOfHiddenNeurons;
-            return this;
-        }
-
-        public MlpBuilder outputNeurons(int numberOfOutputNeurons) {
-            this.numberOfOutputNeurons = numberOfOutputNeurons;
-            return this;
-        }
-
-        public MlpBuilder bias(boolean withBias) {
-            this.withBias = withBias;
-            return this;
-        }
-
-        public MLP build() {
-            return new MLP(this);
-        }
-    }
 
 
     public void printWeights() {

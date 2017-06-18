@@ -43,13 +43,13 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        Queue<KMeans> fiveAttempts = new PriorityQueue<KMeans>((o1, o2) -> Double.compare(o1.getEndError(),o2.getEndError()));
+        Queue<KMeans> fiveAttempts = new PriorityQueue<>((o1, o2) -> Double.compare(o1.getEndError(), o2.getEndError()));
 
-        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
-        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
-        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
-        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
-        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        for (int i = 0; i < 5; i++)
+            fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+
+
+
 
         System.out.print(fiveAttempts.poll().getEndError());
     }
