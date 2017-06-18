@@ -4,19 +4,21 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
+import kmeans.*;
+import kmeans.Point;
 import model.MLP;
 import model.Transformation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class Main {
@@ -29,94 +31,38 @@ public class Main {
     private static double LEARNING_RATE = 0.3;
     private static int MAX_ITERATIONS = 5000;
     private static double MIN_ERROR = 0.00000001;
+    private static int centroidsNumber = 20;
+    private List<kmeans.Point> points = new ArrayList<>();
     private static XYSeriesCollection error = new XYSeriesCollection();
     private static XYSeriesCollection aproximation = new XYSeriesCollection();
     private static XYSeries expectedPlot = new XYSeries("Expected");
     private static XYSeries resultsPlot = new XYSeries("Results");
 
 
-    static File numbers = new File("/home/ralink/sise/zad2/src/main/resources/numbers.txt");
-    static File results = new File("/home/ralink/sise/zad2/src/main/resources/results.txt");
-
+    static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
 
     public static void main(String[] args) throws FileNotFoundException {
 
+        Queue<KMeans> fiveAttempts = new PriorityQueue<KMeans>((o1, o2) -> Double.compare(o1.getEndError(),o2.getEndError()));
 
-        MLP mlp = new MLP.MlpBuilder()
-                .inputNeurons(1)
-                .hiddenNeurons(hiddenNumber)
-                .outputNeurons(1)
-                .bias(activeBias)
-                .build();
+        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
 
-
-        mlp.printWeights();
-        List<List<Double>> trainingData = readTrainingData(numbers);
-        List<List<Double>> resultsData = readTrainingData(results);
-
-        trans = new Transformation(mlp, trainingData, resultsData, LEARNING_RATE, MAX_ITERATIONS, MIN_ERROR);
-        trans.perform();
-        trainingData.forEach(doubles -> {
-            mlp.forwardPropagation(doubles)
-                    .stream()
-                    .filter(n -> n != 1.0)
-                    .map(n -> n + " ");
-                    //.forEach(System.out::print);
-            //System.out.println();
-        });
-        mlp.printWeights();
-
-        double error2 = trans.getCost();
-        DecimalFormat df = new DecimalFormat("###.#####");
-        df.setRoundingMode(RoundingMode.CEILING);
-
-        //ERROR
-        String descirption = "LearningRate: " + LEARNING_RATE + "&Bias: " + activeBias + "&Hidden Neurons: " + hiddenNumber + "&End Error: " + df.format(error2) + "&Iteration: " + trans.getIterator() +  "&Time: " + trans.getTimeCost() + "ms";
-        error.addSeries(trans.getSeries());
-        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", error, descirption);
-        errorChartJFree.pack();
-        RefineryUtilities.centerFrameOnScreen(errorChartJFree);
-        errorChartJFree.setVisible(true);
-
-
-
-        //APPROXIMATION
-        List<Double> temp = new ArrayList<>();
-        for(int i=0;i<100;i++){
-            resultsPlot.add(i+1,mlp.forwardPropagation(trainingData.get(i)).get(1));
-        }
-
-        expected(expectedPlot, trainingData);
-        aproximation.addSeries(expectedPlot);
-        aproximation.addSeries(resultsPlot);
-        AproximationChartJFree errorChartJFree2 = new AproximationChartJFree("", aproximation, descirption);
-        errorChartJFree2.pack();
-        RefineryUtilities.centerFrameOnScreen(errorChartJFree2);
-        errorChartJFree2.setVisible(true);
-
-
-
-
+        System.out.print(fiveAttempts.poll().getEndError());
     }
 
-    private static List<List<Double>> readTrainingData(File file) throws FileNotFoundException {
-        List<List<Double>> trainingData = new ArrayList<>();
+    private static List<Point> readTrainingData(File file) throws FileNotFoundException {
+        List<Point> trainingData = new ArrayList<>();
         Scanner scanner = new Scanner(file);
-        for (int i = 0; i < 100; i++) {
-            List<Double> row = new ArrayList<>();
-            for (int j = 0; j < 1; j++) {
-                row.add(Double.valueOf(scanner.nextLine()));
-            }
-            trainingData.add(row);
+        while (scanner.hasNextLine()) {
+            Point point = new Point(Double.valueOf(scanner.next()), Double.valueOf(scanner.next()));
+            trainingData.add(point);
         }
 
         return trainingData;
-    }
-
-    private static void expected(XYSeries series, List<List<Double>> training) {
-        for (int i = 0; i < 100; i++) {
-            series.add(i + 1, Double.valueOf(Math.sqrt(training.get(i).get(0))));
-        }
     }
 
 
