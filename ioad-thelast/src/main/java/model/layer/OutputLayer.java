@@ -3,11 +3,13 @@ package model.layer;
 import kmeans.Point;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.neuron.Neuron;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class OutputLayer {
     private Neuron neuron;

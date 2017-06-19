@@ -2,6 +2,7 @@ package model.layer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.neuron.RadialNeuron;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
  * Created by ralink on 18.06.17.
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class HiddenLayer {
 

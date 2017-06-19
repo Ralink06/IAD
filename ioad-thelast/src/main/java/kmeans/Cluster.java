@@ -1,10 +1,12 @@
 package kmeans;
 
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
-
-class Cluster {
+@Data
+public class Cluster {
 
     private List<Point> points;
     private Point centroid;
@@ -22,7 +24,7 @@ class Cluster {
         points.add(point);
     }
 
-    Point getCentroid() {
+    public Point getCentroid() {
         return centroid;
     }
 

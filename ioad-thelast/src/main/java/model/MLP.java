@@ -1,11 +1,19 @@
 package model;
 
+import com.oracle.webservices.internal.api.databinding.DatabindingMode;
 import kmeans.KMeans;
+import kmeans.Point;
+import kmeans.Cluster;
+import lombok.Data;
+import model.layer.HiddenLayer;
+import model.layer.OutputLayer;
+import model.neuron.RadialNeuron;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Data
 public class MLP {
     private int hiddenSize;
 
@@ -13,63 +21,56 @@ public class MLP {
     private double[][] weightsForOutput;
 
     private KMeans kMeans;
+    private double learningRate;
+    private double eps;
+    private List<Point> input = new ArrayList<>();
+    private int iteration;
 
-    private MLP(KMeans kMeans, int hiddenSize) {
+    private HiddenLayer hiddenLayer = new HiddenLayer();
+    private OutputLayer outputLayer = new OutputLayer();
+
+    private MLP(List<Point> input, KMeans kMeans, int hiddenSize, double learningRate, double eps, int iteration) {
         this.kMeans = kMeans;
         this.hiddenSize = hiddenSize;
+        this.learningRate = learningRate;
+        this.eps = eps;
+        this.input = input;
+        this.iteration = iteration;
         generateRandomWeights(new Random());
 
     }
 
 
-    public List<Double> train(List<Double> input, List<Double> expectedResult, double learningRate) {
-        List<Double> afterPropagation = forwardPropagation(input);
-        backPropagation(expectedResult, learningRate);
-
-        return afterPropagation;
+    public void train() {
+        trainHidden();
+        trainOutput();
     }
 
-    private void backPropagation(List<Double> expectedResult, double learningRate) {
-        double[] errorsForOutput = new double[outputLayer.getLayerSize()];
-        double[] errorsForHidden = new double[hiddenLayer.getLayerSize()];
-        double sum = 0.0;
+    private void trainHidden() {
 
-        for (int i = 1; i < outputLayer.getLayerSize(); i++) {
-            Double neuron = outputLayer.getNeuron(i);
-            errorsForOutput[i] = sigmoidDerivative(neuron) * (expectedResult.get(i - 1) - neuron);
+        List<Point> centroidsToHidden = getCentroidsFromKMeans(kMeans.getClusters());
+        for (int i = 0; i < hiddenSize;i++){
+            hiddenLayer.addNeuron(new RadialNeuron(centroidsToHidden.get(i)));
         }
+        hiddenLayer.calculateNeuronWidth();
+    }
 
+    private void trainOutput(){
 
-        for (int i = 0; i < hiddenLayer.getLayerSize(); i++) {
-            for (int j = 1; j < outputLayer.getLayerSize(); j++) {
-                sum += weightsForOutput[j][i] * errorsForOutput[j];
-            }
+    }
 
-            errorsForHidden[i] = hiddenLayer.getNeuron(i) * (1.0 - hiddenLayer.getNeuron(i)) * sum;
-            sum = 0.0;
+    private List<Point> getCentroidsFromKMeans(List<Cluster> clusters) {
+        List<Point> returned = new ArrayList<>();
+        for (Cluster a : clusters) {
+            returned.add(a.getCentroid());
         }
-
-        for (int j = 1; j < outputLayer.getLayerSize(); j++) {
-            for (int i = 0; i < hiddenLayer.getLayerSize(); i++) {
-                double temp = errorsForOutput[j];
-                double temp2 = hiddenLayer.getNeuron(i);
-                double temp3 = learningRate*temp2*temp;
-                weightsForOutput[j][i] += temp3;
-            }
-        }
-
-        for (int j = 1; j < hiddenLayer.getLayerSize(); j++) {
-            for (int i = 0; i < inputLayer.getLayerSize(); i++) {
-                weightsForHidden[j][i] += learningRate * errorsForHidden[j] * inputLayer.getNeuron(i);
-            }
-        }
-
+        return returned;
     }
 
     public List<Double> forwardPropagation(List<Double> input) {
         inputLayer.setLayerInput(input);
-        hiddenLayer.setLayerInput(propagateLayer(inputLayer, hiddenLayer, weightsForHidden,true));
-        outputLayer.setLayerInput(propagateLayer(hiddenLayer, outputLayer, weightsForOutput,false));
+        hiddenLayer.setLayerInput(propagateLayer(inputLayer, hiddenLayer, weightsForHidden, true));
+        outputLayer.setLayerInput(propagateLayer(hiddenLayer, outputLayer, weightsForOutput, false));
 
         return outputLayer.getLayerOutput();
     }
@@ -83,7 +84,7 @@ public class MLP {
                 //System.out.println(layerWeights[j][i]);
                 passedValue += layerWeights[j][i] * firstLayer.getNeuron(i);
             }
-            if(sigmoid)output.add(activate(passedValue));
+            if (sigmoid) output.add(activate(passedValue));
             else output.add(passedValue);
         }
 
@@ -126,7 +127,6 @@ public class MLP {
     }
 
 
-
     public void printWeights() {
 
         for (int j = 1; j < hiddenLayer.getLayerSize(); j++) {
@@ -142,9 +142,10 @@ public class MLP {
                 System.out.println("OUTPUT ");
                 System.out.println(weightsForOutput[j][i]);
 
-        }
+            }
             System.out.println("");
         }
     }
+
 
 }
