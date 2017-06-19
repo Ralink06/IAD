@@ -30,7 +30,7 @@ public class HiddenLayer {
         List<RadialNeuron> copy = new ArrayList<>(neurons);
         for(RadialNeuron radialNeuron : neurons){
             copy.sort((a,b)->Double.compare(distance(a,radialNeuron),distance(b,radialNeuron)));
-            radialNeuron.calculateUnitWidth(copy.subList(0,2));
+            radialNeuron.calculateUnitWidth(copy.subList(1,3));
         }
     }
 

@@ -18,7 +18,7 @@ public class RadialNeuron {
     public void calculateUnitWidth(List<RadialNeuron> neighbours) {
         width = 0.0;
         for (RadialNeuron neighbour : neighbours) {
-            width += Math.abs(center.getX() - neighbour.getCenter().getX()) * Math.abs(center.getX() - neighbour.getCenter().getX());
+            width += (center.getX() - neighbour.getCenter().getX()) * (center.getX() - neighbour.getCenter().getX());
         }
 
         width = Math.sqrt(width / 2);
