@@ -39,6 +39,7 @@ public class MLP {
 
     private XYSeriesCollection outputErrorChart = new XYSeriesCollection();
     private XYSeries outputPlot = new XYSeries("Output Error");
+    private XYSeries outputPlotKMeans = new XYSeries("Output Error");
 
     private XYSeriesCollection aproximationChart = new XYSeriesCollection();
     private XYSeries pointsPlot = new XYSeries("Points Plot");
@@ -60,18 +61,22 @@ public class MLP {
         trainHidden();
         trainOutput();
 
+
+
+        addPointsToXYSeries();
+
         outputErrorChart.addSeries(outputPlot);
         ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorChart, "");
         errorChartJFree.pack();
         RefineryUtilities.centerFrameOnScreen(errorChartJFree);
         errorChartJFree.setVisible(true);
 
-        addPointsToXYSeries();
-
-        AproximationChartJFree aprox = new AproximationChartJFree("", aproximationChart, "");
+        AproximationChartJFree aprox = new AproximationChartJFree("", aproximationChart, "",hiddenLayer.getNeurons());
         aprox.pack();
         RefineryUtilities.centerFrameOnScreen(aprox);
         aprox.setVisible(true);
+
+
     }
 
     private void trainHidden() {
@@ -136,5 +141,13 @@ public class MLP {
         }
 
         aproximationChart.addSeries(aproximationPlot);
+
+//        //KMEANS error
+//        for(int i=0;i<kMeans.getErrorList().size();i++){
+//            outputPlotKMeans.add(i+1,kMeans.getErrorList().get(i));
+//        }
+//
+//        outputErrorChart.addSeries(outputPlotKMeans);
+
     }
 }
