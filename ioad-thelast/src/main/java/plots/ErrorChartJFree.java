@@ -1,23 +1,14 @@
+package plots;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.plot.*;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.time.Day;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.date.SerialDate;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
-import org.jfree.util.ShapeUtilities;
 
 import javax.swing.*;
 import java.awt.*;

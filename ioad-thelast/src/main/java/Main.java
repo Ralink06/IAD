@@ -1,42 +1,21 @@
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.stage.Stage;
 import kmeans.*;
 import kmeans.Point;
 import model.MLP;
-import model.Transformation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RefineryUtilities;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
 
 public class Main {
 
-    private static Transformation trans;
-
-
-    private static boolean activeBias = true;
-    private static int hiddenNumber = 5;
-    private static double LEARNING_RATE = 0.3;
-    private static int MAX_ITERATIONS = 5000;
-    private static double MIN_ERROR = 0.00000001;
-    private static int centroidsNumber = 20;
-    private List<kmeans.Point> points = new ArrayList<>();
-    private static XYSeriesCollection error = new XYSeriesCollection();
-    private static XYSeriesCollection aproximation = new XYSeriesCollection();
-    private static XYSeries expectedPlot = new XYSeries("Expected");
-    private static XYSeries resultsPlot = new XYSeries("Results");
+    private static double LEARNING_RATE = 0.1;
+    private static int MAX_ITERATIONS = 1000;
+    private static double MIN_ERROR = 0.01;
+    private static int centroidsNumber = 8;
 
 
     static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
@@ -48,10 +27,9 @@ public class Main {
         for (int i = 0; i < 5; i++)
             fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
 
+        MLP mlp = new MLP(readTrainingData(numbers),fiveAttempts.poll(),centroidsNumber,LEARNING_RATE,MIN_ERROR,MAX_ITERATIONS);
+        mlp.train();
 
-
-
-        System.out.print(fiveAttempts.poll().getEndError());
     }
 
     private static List<Point> readTrainingData(File file) throws FileNotFoundException {

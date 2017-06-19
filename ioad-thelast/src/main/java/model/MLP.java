@@ -1,15 +1,21 @@
 package model;
 
-import com.oracle.webservices.internal.api.databinding.DatabindingMode;
 import kmeans.KMeans;
 import kmeans.Point;
 import kmeans.Cluster;
 import lombok.Data;
 import model.layer.HiddenLayer;
 import model.layer.OutputLayer;
+import model.neuron.Neuron;
 import model.neuron.RadialNeuron;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RefineryUtilities;
+import plots.AproximationChartJFree;
+import plots.ErrorChartJFree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -29,14 +35,23 @@ public class MLP {
     private HiddenLayer hiddenLayer = new HiddenLayer();
     private OutputLayer outputLayer = new OutputLayer();
 
-    private MLP(List<Point> input, KMeans kMeans, int hiddenSize, double learningRate, double eps, int iteration) {
+    private List<Double> outputErrorList = new ArrayList<>();
+
+    private XYSeriesCollection outputErrorChart = new XYSeriesCollection();
+    private XYSeries outputPlot = new XYSeries("Output Error");
+
+    private XYSeriesCollection aproximationChart = new XYSeriesCollection();
+    private XYSeries pointsPlot = new XYSeries("Points Plot");
+    private XYSeries clustersPlot = new XYSeries("Centroids Plot");
+    private XYSeries aproximationPlot = new XYSeries("Output Error");
+
+    public MLP(List<Point> input, KMeans kMeans, int hiddenSize, double learningRate, double eps, int iteration) {
         this.kMeans = kMeans;
         this.hiddenSize = hiddenSize;
         this.learningRate = learningRate;
         this.eps = eps;
         this.input = input;
         this.iteration = iteration;
-        generateRandomWeights(new Random());
 
     }
 
@@ -44,19 +59,49 @@ public class MLP {
     public void train() {
         trainHidden();
         trainOutput();
+
+        outputErrorChart.addSeries(outputPlot);
+        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorChart, "");
+        errorChartJFree.pack();
+        RefineryUtilities.centerFrameOnScreen(errorChartJFree);
+        errorChartJFree.setVisible(true);
+
+        addPointsToXYSeries();
+
+        AproximationChartJFree aprox = new AproximationChartJFree("", aproximationChart, "");
+        aprox.pack();
+        RefineryUtilities.centerFrameOnScreen(aprox);
+        aprox.setVisible(true);
     }
 
     private void trainHidden() {
 
         List<Point> centroidsToHidden = getCentroidsFromKMeans(kMeans.getClusters());
-        for (int i = 0; i < hiddenSize;i++){
+        for (int i = 0; i < hiddenSize; i++) {
             hiddenLayer.addNeuron(new RadialNeuron(centroidsToHidden.get(i)));
         }
         hiddenLayer.calculateNeuronWidth();
     }
 
-    private void trainOutput(){
+    private void trainOutput() {
+        List<Point> points = new ArrayList<>(input);
+        outputLayer.setNeuron(new Neuron(hiddenSize));
+        outputLayer.setLearningRate(learningRate);
 
+        double error = Double.MAX_VALUE;
+        for (int i = 0; i < iteration && error > eps; i++) {
+            error = 0;
+            Collections.shuffle(points);
+            for (Point a : points) {
+                outputLayer.train(hiddenLayer.calculateOutput(a.getX()), a);
+                double outputError = a.getY() - propagateOutputLayer(a.getX());
+                error += outputError * outputError;
+            }
+            error /= points.size();
+            System.out.println(error);
+            outputErrorList.add(error);
+            outputPlot.add(i, error);
+        }
     }
 
     private List<Point> getCentroidsFromKMeans(List<Cluster> clusters) {
@@ -67,85 +112,29 @@ public class MLP {
         return returned;
     }
 
-    public List<Double> forwardPropagation(List<Double> input) {
-        inputLayer.setLayerInput(input);
-        hiddenLayer.setLayerInput(propagateLayer(inputLayer, hiddenLayer, weightsForHidden, true));
-        outputLayer.setLayerInput(propagateLayer(hiddenLayer, outputLayer, weightsForOutput, false));
 
-        return outputLayer.getLayerOutput();
+    public double propagateOutputLayer(double input) {
+        return outputLayer.calculateOutput(hiddenLayer.calculateOutput(input));
     }
 
-    private List<Double> propagateLayer(Layer firstLayer, Layer secondLayer, double[][] layerWeights, boolean sigmoid) {
-        List<Double> output = new ArrayList<>();
+    public void addPointsToXYSeries() {
+        for (Point a : input) {
+            pointsPlot.add(a.getX(), a.getY());
+        }
+        aproximationChart.addSeries(pointsPlot);
 
-        for (int j = 1; j < secondLayer.getLayerSize(); j++) {
-            double passedValue = 0.0;
-            for (int i = 0; i < firstLayer.getLayerSize(); i++) {
-                //System.out.println(layerWeights[j][i]);
-                passedValue += layerWeights[j][i] * firstLayer.getNeuron(i);
-            }
-            if (sigmoid) output.add(activate(passedValue));
-            else output.add(passedValue);
+
+        for (Cluster a : kMeans.getClusters()) {
+            clustersPlot.add(a.getCentroid().getX(), a.getCentroid().getY());
+        }
+        aproximationChart.addSeries(clustersPlot);
+
+        double min = -4;
+        for (int i = 0; i < 1000; i++) {
+            aproximationPlot.add(min,propagateOutputLayer(min));
+            min = min + 8/1000.0;
         }
 
-        return output;
+        aproximationChart.addSeries(aproximationPlot);
     }
-
-
-    private void generateRandomWeights(Random random) {
-
-        for (int j = 1; j < hiddenLayer.getLayerSize(); j++) {
-            for (int i = 0; i < inputLayer.getLayerSize(); i++) {
-                double temp = generateRandom(random);
-//                System.out.print("HIDDEN ");
-//                System.out.print(temp+ " ");
-                weightsForHidden[j][i] = temp;
-            }
-            System.out.println("");
-        }
-
-        for (int j = 1; j < outputLayer.getLayerSize(); j++) {
-            for (int i = 0; i < hiddenLayer.getLayerSize(); i++) {
-                double temp = generateRandom(random);
-//                System.out.print("OUTPUT ");
-//                System.out.print(temp +" ");
-                weightsForOutput[j][i] = temp;
-            }
-        }
-    }
-
-    private double activate(double value) {
-        return 1.0 / (1.0 + Math.exp(-value));
-    }
-
-    public static Double sigmoidDerivative(Double value) {
-        return Math.exp(value) / ((Math.exp(value) + 1) * (Math.exp(value) + 1));
-    }
-
-    private double generateRandom(Random random) {
-        return random.nextDouble() * 2 + (-1);
-    }
-
-
-    public void printWeights() {
-
-        for (int j = 1; j < hiddenLayer.getLayerSize(); j++) {
-            for (int i = 0; i < inputLayer.getLayerSize(); i++) {
-                System.out.print("HIDDEN ");
-                System.out.println(weightsForHidden[j][i]);
-            }
-            System.out.println("");
-        }
-
-        for (int j = 1; j < outputLayer.getLayerSize(); j++) {
-            for (int i = 0; i < hiddenLayer.getLayerSize(); i++) {
-                System.out.println("OUTPUT ");
-                System.out.println(weightsForOutput[j][i]);
-
-            }
-            System.out.println("");
-        }
-    }
-
-
 }

@@ -3,7 +3,7 @@ package kmeans;
 import lombok.AllArgsConstructor;
 import java.awt.geom.Point2D;
 
-@AllArgsConstructor
+
 public class Point extends Point2D {
 
     private double x;
