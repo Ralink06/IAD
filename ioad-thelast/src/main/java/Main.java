@@ -1,13 +1,10 @@
-import kmeans.*;
+import kmeans.KMeans;
 import kmeans.Point;
 import model.MLP;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.List;
 
 
 public class Main {

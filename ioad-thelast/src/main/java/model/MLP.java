@@ -8,15 +8,12 @@ import model.layer.HiddenLayer;
 import model.layer.OutputLayer;
 import model.neuron.Neuron;
 import model.neuron.RadialNeuron;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RefineryUtilities;
-import plots.AproximationChartJFree;
-import plots.ErrorChartJFree;
+import plots.ChartHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class MLP {
@@ -36,23 +33,20 @@ public class MLP {
 
     private List<Double> outputErrorList = new ArrayList<>();
 
-    private XYSeriesCollection outputErrorChart = new XYSeriesCollection();
-    private XYSeries outputPlot = new XYSeries("Output Error");
-    private XYSeries outputPlotKMeans = new XYSeries("Output Error");
+    private ChartHolder chartHolder = new ChartHolder();
 
-    private XYSeriesCollection aproximationChart = new XYSeriesCollection();
-    private XYSeries pointsPlot = new XYSeries("Points Plot");
-    private XYSeries clustersPlot = new XYSeries("Centroids Plot");
-    private XYSeries aproximationPlot = new XYSeries("Output Error");
-
-    public MLP(List<Point> input, KMeans kMeans, int hiddenSize, double learningRate, double eps, int iteration) {
+    public MLP(final List<Point> input,
+               final KMeans kMeans,
+               final int hiddenSize,
+               final double learningRate,
+               final double eps,
+               final int iteration) {
         this.kMeans = kMeans;
         this.hiddenSize = hiddenSize;
         this.learningRate = learningRate;
         this.eps = eps;
         this.input = input;
         this.iteration = iteration;
-
     }
 
 
@@ -60,22 +54,13 @@ public class MLP {
         trainHidden();
         trainOutput();
 
-        addPointsToXYSeries();
+        createChartsPoints();
+        chartHolder.addOutputPointsPlotToErrorChart();
 
-        outputErrorChart.addSeries(outputPlot);
-        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorChart, "");
-        errorChartJFree.pack();
-        RefineryUtilities.centerFrameOnScreen(errorChartJFree);
-        errorChartJFree.setVisible(true);
-
-        AproximationChartJFree aprox = new AproximationChartJFree("", aproximationChart, "",hiddenLayer.getNeurons());
-        aprox.pack();
-        RefineryUtilities.centerFrameOnScreen(aprox);
-        aprox.setVisible(true);
+        chartHolder.displayChart(hiddenLayer);
     }
 
     private void trainHidden() {
-
         List<Point> centroidsToHidden = getCentroidsFromKMeans(kMeans.getClusters());
         for (int i = 0; i < hiddenSize; i++) {
             hiddenLayer.addNeuron(new RadialNeuron(centroidsToHidden.get(i)));
@@ -100,16 +85,14 @@ public class MLP {
             error /= points.size();
             System.out.println(error);
             outputErrorList.add(error);
-            outputPlot.add(i, error);
+            chartHolder.addPointsToOutputPlot(i, error);
         }
     }
 
     private List<Point> getCentroidsFromKMeans(List<Cluster> clusters) {
-        List<Point> returned = new ArrayList<>();
-        for (Cluster a : clusters) {
-            returned.add(a.getCentroid());
-        }
-        return returned;
+        return clusters.stream()
+                .map(Cluster::getCentroid)
+                .collect(Collectors.toList());
     }
 
 
@@ -117,32 +100,26 @@ public class MLP {
         return outputLayer.calculateOutput(hiddenLayer.calculateOutput(input));
     }
 
-    private void addPointsToXYSeries() {
-        for (Point a : input) {
-            pointsPlot.add(a.getX(), a.getY());
-        }
-        aproximationChart.addSeries(pointsPlot);
+    private void createChartsPoints() {
+        input.forEach(chartHolder::addPointsToPlotPoints);
+        chartHolder.addPointsPlotToApproximationChart();
 
-
-        for (Cluster a : kMeans.getClusters()) {
-            clustersPlot.add(a.getCentroid().getX(), a.getCentroid().getY());
-        }
-        aproximationChart.addSeries(clustersPlot);
+        kMeans.getClusters().forEach(chartHolder::addPointsToClustersPlot);
+        chartHolder.addClustersPlotToApproximationChart();
 
         double min = -4;
         for (int i = 0; i < 1000; i++) {
-            aproximationPlot.add(min,propagateOutputLayer(min));
-            min = min + 8/1000.0;
+            chartHolder.addPointsToApproximationPlot(min, propagateOutputLayer(min));
+            min = min + 8 / 1000.0;
         }
+        chartHolder.addApproximationPlotToApproximationChart();
 
-        aproximationChart.addSeries(aproximationPlot);
 
 //        //KMEANS error
-//        for(int i=0;i<kMeans.getErrorList().size();i++){
-//            outputPlotKMeans.add(i+1,kMeans.getErrorList().get(i));
+//        for (int i = 0; i < kMeans.getErrorList().size(); i++) {
+//            chartHolder.addPointsToKmeansOutput(i + 1, kMeans.getErrorList().get(i));
 //        }
-//
-//        outputErrorChart.addSeries(outputPlotKMeans);
+//        chartHolder.addKmeansPlotToOutputErrorChart();
 
     }
 }
