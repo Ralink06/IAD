@@ -1,8 +1,8 @@
 package model;
 
+import kmeans.Cluster;
 import kmeans.KMeans;
 import kmeans.Point;
-import kmeans.Cluster;
 import lombok.Data;
 import model.layer.HiddenLayer;
 import model.layer.OutputLayer;
@@ -17,7 +17,6 @@ import plots.ErrorChartJFree;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 @Data
 public class MLP {
@@ -61,8 +60,6 @@ public class MLP {
         trainHidden();
         trainOutput();
 
-
-
         addPointsToXYSeries();
 
         outputErrorChart.addSeries(outputPlot);
@@ -75,8 +72,6 @@ public class MLP {
         aprox.pack();
         RefineryUtilities.centerFrameOnScreen(aprox);
         aprox.setVisible(true);
-
-
     }
 
     private void trainHidden() {
@@ -118,11 +113,11 @@ public class MLP {
     }
 
 
-    public double propagateOutputLayer(double input) {
+    private double propagateOutputLayer(double input) {
         return outputLayer.calculateOutput(hiddenLayer.calculateOutput(input));
     }
 
-    public void addPointsToXYSeries() {
+    private void addPointsToXYSeries() {
         for (Point a : input) {
             pointsPlot.add(a.getX(), a.getY());
         }

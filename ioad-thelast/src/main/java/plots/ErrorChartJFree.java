@@ -17,7 +17,7 @@ import java.awt.*;
 public class ErrorChartJFree extends ApplicationFrame {
 
 
-    public static JFreeChart jfreechart;
+    private static JFreeChart jfreechart;
 
     public ErrorChartJFree(String s, XYSeriesCollection series,String description){
         super(s);
@@ -26,7 +26,7 @@ public class ErrorChartJFree extends ApplicationFrame {
         add(jpanel);
     }
 
-    public static JPanel createDemoPanel(XYSeriesCollection dataset,String description) {
+    private static JPanel createDemoPanel(XYSeriesCollection dataset, String description) {
         jfreechart = ChartFactory.createXYLineChart(null,"Iteration","Error",dataset,PlotOrientation.VERTICAL,true,true,false);
 
         XYPlot xyPlot = (XYPlot) jfreechart.getPlot();

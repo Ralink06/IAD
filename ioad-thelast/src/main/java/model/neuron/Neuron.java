@@ -22,9 +22,9 @@ public class Neuron {
 
     public void updateWeights(List<Double> input, Point output, double learningRate) {
         double neuronOutput = calculateOutput(input);
-        for(int i=0; i<weights.size();i++){
+        for (int i = 0; i < weights.size(); i++) {
             double delta = output.getY() - neuronOutput;
-            weights.set(i,weights.get(i) + (learningRate * delta * input.get(i)));
+            weights.set(i, weights.get(i) + (learningRate * delta * input.get(i)));
         }
     }
 

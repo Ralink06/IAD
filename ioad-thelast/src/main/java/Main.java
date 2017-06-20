@@ -17,17 +17,17 @@ public class Main {
     private static double MIN_ERROR = 0.01;
     private static int centroidsNumber = 20;
 
-
-    static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
+    private static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        Queue<KMeans> fiveAttempts = new PriorityQueue<>((o1, o2) -> Double.compare(o1.getEndError(), o2.getEndError()));
+        Queue<KMeans> fiveAttempts = new PriorityQueue<>(Comparator.comparingDouble(KMeans::getEndError));
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++) {
             fiveAttempts.add(new KMeans(readTrainingData(numbers), centroidsNumber));
+        }
 
-        MLP mlp = new MLP(readTrainingData(numbers),fiveAttempts.poll(),centroidsNumber,LEARNING_RATE,MIN_ERROR,MAX_ITERATIONS);
+        MLP mlp = new MLP(readTrainingData(numbers), fiveAttempts.poll(), centroidsNumber, LEARNING_RATE, MIN_ERROR, MAX_ITERATIONS);
         mlp.train();
 
     }

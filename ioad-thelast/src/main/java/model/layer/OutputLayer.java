@@ -20,7 +20,7 @@ public class OutputLayer {
     }
 
     public void train(List<Double> input, Point point) {
-    neuron.updateWeights(input,point,learningRate);
+        neuron.updateWeights(input, point, learningRate);
     }
 
 }

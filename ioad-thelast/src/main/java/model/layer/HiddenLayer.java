@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import model.neuron.RadialNeuron;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -20,25 +21,25 @@ public class HiddenLayer {
 
     public List<Double> calculateOutput(double input) {
         List<Double> output = new ArrayList<>();
-        for(RadialNeuron a : neurons){
+        for (RadialNeuron a : neurons) {
             output.add(a.calculateOutput(input));
         }
         return output;
     }
 
-    public void calculateNeuronWidth(){
+    public void calculateNeuronWidth() {
         List<RadialNeuron> copy = new ArrayList<>(neurons);
-        for(RadialNeuron radialNeuron : neurons){
-            copy.sort((a,b)->Double.compare(distance(a,radialNeuron),distance(b,radialNeuron)));
-            radialNeuron.calculateUnitWidth(copy.subList(1,3));
+        for (RadialNeuron radialNeuron : neurons) {
+            copy.sort(Comparator.comparingDouble(a -> distance(a, radialNeuron)));
+            radialNeuron.calculateUnitWidth(copy.subList(1, 3));
         }
     }
 
-    private double distance(RadialNeuron a, RadialNeuron b){
+    private double distance(RadialNeuron a, RadialNeuron b) {
         return Math.abs(a.getCenter().getX() - b.getCenter().getX());
     }
 
-    public void addNeuron(RadialNeuron neuron){
+    public void addNeuron(RadialNeuron neuron) {
         neurons.add(neuron);
     }
 }

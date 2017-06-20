@@ -21,28 +21,25 @@ import java.awt.geom.Ellipse2D;
 public class AproximationChartJFree extends ApplicationFrame {
 
 
-    public static JFreeChart jfreechart;
+    private static JFreeChart jfreechart;
 
-    public AproximationChartJFree(String s, XYSeriesCollection series, String description, java.util.List<RadialNeuron> neurons){
+    public AproximationChartJFree(String s, XYSeriesCollection series, String description, java.util.List<RadialNeuron> neurons) {
         super(s);
-        JPanel jpanel = createDemoPanel(series,description,neurons);
+        JPanel jpanel = createDemoPanel(series, description, neurons);
         jpanel.setPreferredSize(new Dimension(640, 480));
         add(jpanel);
     }
 
-    public static JPanel createDemoPanel(XYSeriesCollection dataset, String description, java.util.List<RadialNeuron> neurons) {
-        jfreechart = ChartFactory.createScatterPlot(null,"Number","Square Root",dataset,PlotOrientation.VERTICAL,true,true,false);
-
-        String[] proporties = description.split("&");
+    private static JPanel createDemoPanel(XYSeriesCollection dataset, String description, java.util.List<RadialNeuron> neurons) {
+        jfreechart = ChartFactory.createScatterPlot(null, "Number", "Square Root", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
-        Shape cross = ShapeUtilities.createDiagonalCross(2,Float.valueOf("0.2"));
-        xyPlot.getDomainAxis().setRange(dataset.getDomainLowerBound(true)-1,dataset.getDomainUpperBound(true)+1);
-        xyPlot.getRangeAxis().setRange(dataset.getRangeLowerBound(true),dataset.getRangeUpperBound(true));
+        Shape cross = ShapeUtilities.createDiagonalCross(2, Float.valueOf("0.2"));
+        xyPlot.getDomainAxis().setRange(dataset.getDomainLowerBound(true) - 1, dataset.getDomainUpperBound(true) + 1);
+        xyPlot.getRangeAxis().setRange(dataset.getRangeLowerBound(true), dataset.getRangeUpperBound(true));
         xyPlot.setDomainGridlinePaint(Color.white);
         xyPlot.setRangeGridlinePaint(Color.white);
         xyPlot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
 
 
         XYItemRenderer renderer = xyPlot.getRenderer();
@@ -53,8 +50,10 @@ public class AproximationChartJFree extends ApplicationFrame {
         renderer.setSeriesPaint(1, Color.BLUE);
         //renderer.setBaseStroke(new BasicStroke(3));
 
-        for(RadialNeuron a : neurons)
-        ((XYPlot) jfreechart.getPlot()).addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(a.getCenter().getX() - a.getWidth(), a.getCenter().getY() - a.getWidth(), a.getWidth()*2, a.getWidth()*2)));
+        for (RadialNeuron a : neurons) {
+            ((XYPlot) jfreechart.getPlot())
+                    .addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(a.getCenter().getX() - a.getWidth(), a.getCenter().getY() - a.getWidth(), a.getWidth() * 2, a.getWidth() * 2)));
+        }
 
         return new ChartPanel(jfreechart);
     }
