@@ -56,18 +56,18 @@ public class ChartHolder {
         aproximationChart.addSeries(aproximationPlot);
     }
 
-    public void displayChart(final HiddenLayer hiddenLayer) {
+    public void displayChart(final HiddenLayer hiddenLayer,String description) {
 
         outputErrorKMeansChart.addSeries(outputPlotKMeans);
-        ErrorChartJFree kMeans = new ErrorChartJFree("", outputErrorChart, "");
+        ErrorChartJFree kMeans = new ErrorChartJFree("", outputErrorChart, description);
         kMeans.pack();
         RefineryUtilities.centerFrameOnScreen(kMeans);
         kMeans.setVisible(true);
 
-        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorKMeansChart, "");
-        errorChartJFree.pack();
-        RefineryUtilities.centerFrameOnScreen(errorChartJFree);
-        errorChartJFree.setVisible(true);
+//        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorKMeansChart,description );
+//        errorChartJFree.pack();
+//        RefineryUtilities.centerFrameOnScreen(errorChartJFree);
+//        errorChartJFree.setVisible(true);
 
         AproximationChartJFree aprox = new AproximationChartJFree("", aproximationChart, "", hiddenLayer.getNeurons());
         aprox.pack();

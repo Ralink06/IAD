@@ -27,6 +27,7 @@ public class MLP {
     private double eps;
     private List<Point> input = new ArrayList<>();
     private int iteration;
+    private boolean bias;
 
     private HiddenLayer hiddenLayer = new HiddenLayer();
     private OutputLayer outputLayer = new OutputLayer();
@@ -40,12 +41,14 @@ public class MLP {
                final int hiddenSize,
                final double learningRate,
                final double eps,
-               final int iteration) {
+               final int iteration,
+               final boolean bias) {
         this.kMeans = kMeans;
         this.hiddenSize = hiddenSize;
         this.learningRate = learningRate;
         this.eps = eps;
         this.input = input;
+        this.bias = bias;
         this.iteration = iteration;
     }
 
@@ -61,16 +64,17 @@ public class MLP {
 
         //output train
         List<Point> points = new ArrayList<>(input);
-        outputLayer.setNeuron(new Neuron(hiddenSize));
+        outputLayer.setNeuron(new Neuron(hiddenSize,bias));
         outputLayer.setLearningRate(learningRate);
-        outputLayer.getNeuron().getWeights().forEach(System.out::println);
-        System.out.println();
+//        outputLayer.getNeuron().getWeights().forEach(System.out::println);
+//        System.out.println();
         double error = Double.MAX_VALUE;
-        for (int i = 0; i < iteration && error > eps; i++) {
+        int i = 0;
+        for (i = 0; i < iteration && error > eps; i++) {
             error = 0;
             for (Point a : points) {
                 outputLayer.train(hiddenLayer.calculateOutput(a.getX()), a);
-                double outputError = a.getY() -  outputLayer.calculateOutput(hiddenLayer.calculateOutput(a.getX()));
+                double outputError = a.getY() - outputLayer.calculateOutput(hiddenLayer.calculateOutput(a.getX()));
                 error += outputError * outputError;
             }
             error = error / points.size();
@@ -79,11 +83,14 @@ public class MLP {
             chartHolder.addPointsToOutputPlot(i, error);
         }
 
-        outputLayer.getNeuron().getWeights().forEach(System.out::println);
+//        outputLayer.getNeuron().getWeights().forEach(System.out::println);
 
         createChartsPoints();
         chartHolder.addOutputPointsPlotToErrorChart();
-        chartHolder.displayChart(hiddenLayer);
+
+        String descritpion = "";
+
+        chartHolder.displayChart(hiddenLayer, descritpion);
     }
 
 
@@ -101,8 +108,8 @@ public class MLP {
         kMeans.getClusters().forEach(chartHolder::addPointsToClustersPlot);
         chartHolder.addClustersPlotToApproximationChart();
 
-        for(int i =0;i<kMeans.getErrorList().size();i++){
-            chartHolder.addPointsToKmeansOutput(i,kMeans.getErrorList().get(i));
+        for (int i = 0; i < kMeans.getErrorList().size(); i++) {
+            chartHolder.addPointsToKmeansOutput(i, kMeans.getErrorList().get(i));
         }
 
         double min = -4;
@@ -111,8 +118,6 @@ public class MLP {
             min = min + 8 / 1000.0;
         }
         chartHolder.addApproximationPlotToApproximationChart();
-
-
 
 
 //        //KMEANS error

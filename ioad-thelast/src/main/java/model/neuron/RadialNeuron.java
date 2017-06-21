@@ -24,6 +24,6 @@ public class RadialNeuron {
     }
 
     public double calculateOutput(double input) {
-        return Math.exp(-(((Math.abs(input - center.getX())) * (Math.abs(input - center.getX()))) / 2*(width * width)));
+        return Math.exp(-(((Math.abs(input - center.getX())) * (Math.abs(input - center.getX()))) / (2*(width * width))));
     }
 }

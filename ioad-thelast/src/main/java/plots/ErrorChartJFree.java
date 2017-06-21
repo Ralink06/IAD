@@ -3,6 +3,7 @@ package plots;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -41,6 +42,7 @@ public class ErrorChartJFree extends ApplicationFrame {
         renderer.setSeriesPaint(0, Color.RED);
         renderer.setBaseStroke(new BasicStroke(3));
 
+        System.out.println(dataset.getSeries(0).getMinY());
         return new ChartPanel(jfreechart);
     }
 

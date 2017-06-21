@@ -33,6 +33,7 @@ public class AproximationChartJFree extends ApplicationFrame {
     private static JPanel createDemoPanel(XYSeriesCollection dataset, String description, java.util.List<RadialNeuron> neurons) {
         jfreechart = ChartFactory.createScatterPlot(null, "X", "Y", dataset, PlotOrientation.VERTICAL, true, true, false);
 
+        String[] proporties = description.split("&");
         XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
         Shape cross = ShapeUtilities.createDiagonalCross(2, Float.valueOf("0.2"));
         xyPlot.getDomainAxis().setRange(dataset.getDomainLowerBound(true) - 1, dataset.getDomainUpperBound(true) + 1);
