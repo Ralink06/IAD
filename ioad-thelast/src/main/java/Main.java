@@ -12,7 +12,7 @@ public class Main {
     private static double LEARNING_RATE = 0.1;
     private static int MAX_ITERATIONS = 1000;
     private static double MIN_ERROR = 0.05;
-    private static int centroidsNumber = 20;
+    private static int centroidsNumber = 15;
 
     private static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
 
