@@ -11,12 +11,14 @@ public class ChartHolder {
 
     private XYSeriesCollection outputErrorChart = new XYSeriesCollection();
     private XYSeries outputPlot = new XYSeries("Output Error");
-    private XYSeries outputPlotKMeans = new XYSeries("Output Error");
+
+    private XYSeriesCollection outputErrorKMeansChart = new XYSeriesCollection();
+    private XYSeries outputPlotKMeans = new XYSeries("KMeans Error");
 
     private XYSeriesCollection aproximationChart = new XYSeriesCollection();
     private XYSeries pointsPlot = new XYSeries("Points Plot");
     private XYSeries clustersPlot = new XYSeries("Centroids Plot");
-    private XYSeries aproximationPlot = new XYSeries("Output Error");
+    private XYSeries aproximationPlot = new XYSeries("Aproximation");
 
     public void addPointsToPlotPoints(final Point point) {
         pointsPlot.add(point.getX(), point.getY());
@@ -55,7 +57,14 @@ public class ChartHolder {
     }
 
     public void displayChart(final HiddenLayer hiddenLayer) {
-        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorChart, "");
+
+        outputErrorKMeansChart.addSeries(outputPlotKMeans);
+        ErrorChartJFree kMeans = new ErrorChartJFree("", outputErrorChart, "");
+        kMeans.pack();
+        RefineryUtilities.centerFrameOnScreen(kMeans);
+        kMeans.setVisible(true);
+
+        ErrorChartJFree errorChartJFree = new ErrorChartJFree("", outputErrorKMeansChart, "");
         errorChartJFree.pack();
         RefineryUtilities.centerFrameOnScreen(errorChartJFree);
         errorChartJFree.setVisible(true);

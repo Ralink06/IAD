@@ -34,15 +34,18 @@ public class KMeans {
         List<Point> prevPoints = getCentroids();
         List<Point> currentPoints;
         initClusters();
+        double errorBefore = 0;
+        double errorAfter = 0;
         while(!finish) {
 
+            errorBefore = errorAfter;
             clearClusters();
             assignPointsToClusters();
             updateCentroids();
+            errorAfter = Math.abs(calculateClustersError());
             currentPoints = getCentroids();
-            errorList.add(Math.abs(calculateClustersError()));
-            changeFlag = checkIfCentroidMoved(prevPoints,currentPoints);
-            if(!changeFlag && iterator!=0){
+            errorList.add(errorAfter);
+            if(errorBefore==errorAfter){
                 finish=true;
             }
             iterator++;
@@ -101,14 +104,6 @@ public class KMeans {
         }
     }
 
-    private boolean checkIfCentroidMoved(List<Point> prevCentroids, List<Point> currentCentroids) {
-        for (int i = 0; i < prevCentroids.size(); i++) {
-            if (prevCentroids.get(i).distanceToPoint(currentCentroids.get(i)) != 0) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private List<Point> getCentroids() {
         List<Point> centroids = new ArrayList<>(clustersNumber);

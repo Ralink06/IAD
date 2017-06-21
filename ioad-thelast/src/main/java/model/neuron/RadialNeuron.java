@@ -13,14 +13,13 @@ public class RadialNeuron {
 
     public RadialNeuron(Point center) {
         this.center = center;
+        width = 0.0;
     }
 
     public void calculateUnitWidth(List<RadialNeuron> neighbours) {
-        width = 0.0;
         for (RadialNeuron neighbour : neighbours) {
             width += (center.getX() - neighbour.getCenter().getX()) * (center.getX() - neighbour.getCenter().getX());
         }
-
         width = Math.sqrt(width / 2);
     }
 
