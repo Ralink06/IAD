@@ -42,7 +42,7 @@ public class ErrorChartJFree extends ApplicationFrame {
         renderer.setSeriesPaint(0, Color.RED);
         renderer.setBaseStroke(new BasicStroke(3));
 
-        System.out.println(dataset.getSeries(0).getMinY());
+        //System.out.println(dataset.getSeries(0).getMinY());
         return new ChartPanel(jfreechart);
     }
 

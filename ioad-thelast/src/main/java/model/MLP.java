@@ -10,9 +10,10 @@ import model.neuron.Neuron;
 import model.neuron.RadialNeuron;
 import plots.ChartHolder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -56,20 +57,29 @@ public class MLP {
     public void train() {
 
         //hidden train
+        LocalTime startTime = LocalTime.now();
+        Queue<KMeans> fiveAttempts = new PriorityQueue<>(Comparator.comparingDouble(KMeans::getEndError));
+
+        for (int i = 0; i < 5; i++) {
+            fiveAttempts.add(new KMeans(input, hiddenSize));
+        }
+
+        this.kMeans = fiveAttempts.poll();
         List<Point> centroidsToHidden = getCentroidsFromKMeans(kMeans.getClusters());
         for (int i = 0; i < hiddenSize; i++) {
             hiddenLayer.addNeuron(new RadialNeuron(centroidsToHidden.get(i)));
         }
         hiddenLayer.calculateNeuronWidth();
-
+        LocalTime endTime = LocalTime.now();
         //output train
         List<Point> points = new ArrayList<>(input);
-        outputLayer.setNeuron(new Neuron(hiddenSize,bias));
+        outputLayer.setNeuron(new Neuron(hiddenSize, bias));
         outputLayer.setLearningRate(learningRate);
 //        outputLayer.getNeuron().getWeights().forEach(System.out::println);
 //        System.out.println();
         double error = Double.MAX_VALUE;
         int i = 0;
+        LocalTime startTimeOutput = LocalTime.now();
         for (i = 0; i < iteration && error > eps; i++) {
             error = 0;
             for (Point a : points) {
@@ -82,8 +92,14 @@ public class MLP {
             outputErrorList.add(error);
             chartHolder.addPointsToOutputPlot(i, error);
         }
+        LocalTime endTimeOutput = LocalTime.now();
 
 //        outputLayer.getNeuron().getWeights().forEach(System.out::println);
+        System.out.println("Czas uczenia ukrytej: " + ChronoUnit.MILLIS.between(startTime, endTime) + " ms");
+        System.out.println("Czas uczenia wyjsciowej: " + ChronoUnit.MILLIS.between(startTimeOutput,endTimeOutput)+ " ms");
+        System.out.println("Iteracje: "  + i );
+        System.out.println("Błąd koncowy KMeans: " + kMeans.getEndError());
+        System.out.println("Błąd koncowy wyjsciowy: " + outputErrorList.get(i - 1));
 
         createChartsPoints();
         chartHolder.addOutputPointsPlotToErrorChart();
