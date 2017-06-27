@@ -4,6 +4,7 @@ import model.neuron.RadialNeuron;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -49,12 +50,18 @@ public class AproximationChartJFree extends ApplicationFrame {
 
 
         renderer.setSeriesPaint(1, Color.BLUE);
+        renderer.setSeriesVisible(2,false);
+
+        for(int i=0;i<80;i++){
+            ((XYPlot) jfreechart.getPlot()).addAnnotation(new XYLineAnnotation((double) dataset.getSeries(2).getX(i),(double) dataset.getSeries(2).getY(i),(double) dataset.getSeries(2).getX(i+1),(double) dataset.getSeries(2).getY(i+1)));
+        }
+        //((XYPlot) jfreechart.getPlot()).addAnnotation(new XYLineAnnotation(-1,-1,1,1));
         //renderer.setBaseStroke(new BasicStroke(3));
 
-        for (RadialNeuron a : neurons) {
-            ((XYPlot) jfreechart.getPlot())
-                    .addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(a.getCenter().getX() - a.getWidth(), a.getCenter().getY() - a.getWidth(), a.getWidth() * 2, a.getWidth() * 2)));
-        }
+//        for (RadialNeuron a : neurons) {
+//            ((XYPlot) jfreechart.getPlot())
+//                    .addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(a.getCenter().getX() - a.getWidth(), a.getCenter().getY() - a.getWidth(), a.getWidth() * 2, a.getWidth() * 2)));
+//        }
 
         return new ChartPanel(jfreechart);
     }

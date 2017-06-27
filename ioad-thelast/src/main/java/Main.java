@@ -1,4 +1,3 @@
-import kmeans.KMeans;
 import kmeans.Point;
 import model.MLP;
 
@@ -11,15 +10,18 @@ public class Main {
 
     private static double LEARNING_RATE = 0.2;
     private static int MAX_ITERATIONS = 1000;
-    private static double MIN_ERROR = 0.05;
-    private static int centroidsNumber = 8;
+    private static double MIN_ERROR = 0.01;
+    private static int centroidsNumber = 12;
     private static boolean bias = true;
 
     private static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
+    private static File training1 = new File(Main.class.getClassLoader().getResource("training1.txt").getFile());
+    private static File training2 = new File(Main.class.getClassLoader().getResource("training2.txt").getFile());
+
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        MLP mlp = new MLP(readTrainingData(numbers), null, centroidsNumber, LEARNING_RATE, MIN_ERROR, MAX_ITERATIONS,bias);
+        MLP mlp = new MLP(readTrainingData(numbers), readTrainingData(training1), null, centroidsNumber, LEARNING_RATE, MIN_ERROR, MAX_ITERATIONS, bias);
         mlp.train();
 
     }

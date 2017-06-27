@@ -27,6 +27,7 @@ public class MLP {
     private double learningRate;
     private double eps;
     private List<Point> input = new ArrayList<>();
+    private List<Point> training = new ArrayList<>();
     private int iteration;
     private boolean bias;
 
@@ -38,6 +39,7 @@ public class MLP {
     private ChartHolder chartHolder = new ChartHolder();
 
     public MLP(final List<Point> input,
+               final List<Point> training,
                final KMeans kMeans,
                final int hiddenSize,
                final double learningRate,
@@ -51,6 +53,7 @@ public class MLP {
         this.input = input;
         this.bias = bias;
         this.iteration = iteration;
+        this.training=training;
     }
 
 
@@ -60,8 +63,8 @@ public class MLP {
         LocalTime startTime = LocalTime.now();
         Queue<KMeans> fiveAttempts = new PriorityQueue<>(Comparator.comparingDouble(KMeans::getEndError));
 
-        for (int i = 0; i < 5; i++) {
-            fiveAttempts.add(new KMeans(input, hiddenSize));
+        for (int i = 0; i < 20; i++) {
+            fiveAttempts.add(new KMeans(training, hiddenSize));
         }
 
         this.kMeans = fiveAttempts.poll();
@@ -72,7 +75,7 @@ public class MLP {
         hiddenLayer.calculateNeuronWidth();
         LocalTime endTime = LocalTime.now();
         //output train
-        List<Point> points = new ArrayList<>(input);
+        List<Point> points = new ArrayList<>(training);
         outputLayer.setNeuron(new Neuron(hiddenSize, bias));
         outputLayer.setLearningRate(learningRate);
 //        outputLayer.getNeuron().getWeights().forEach(System.out::println);
@@ -118,7 +121,7 @@ public class MLP {
 
 
     private void createChartsPoints() {
-        input.forEach(chartHolder::addPointsToPlotPoints);
+        training.forEach(chartHolder::addPointsToPlotPoints);
         chartHolder.addPointsPlotToApproximationChart();
 
         kMeans.getClusters().forEach(chartHolder::addPointsToClustersPlot);
@@ -128,14 +131,24 @@ public class MLP {
             chartHolder.addPointsToKmeansOutput(i, kMeans.getErrorList().get(i));
         }
 
-        double min = -4;
-        for (int i = 0; i < 1000; i++) {
-            chartHolder.addPointsToApproximationPlot(min, outputLayer.calculateOutput(hiddenLayer.calculateOutput(min)));
-            min = min + 8 / 1000.0;
+//        double min = -4;
+//        for (int i = 0; i < 1000; i++) {
+//            chartHolder.addPointsToApproximationPlot(min, outputLayer.calculateOutput(hiddenLayer.calculateOutput(min)));
+//            min = min + 8 / 1000.0;
+//        }
+        List<Double> aproximationErrorPoints = new ArrayList<>();
+        for(int i=0;i<input.size();i++){
+            chartHolder.addPointsToApproximationPlot(input.get(i).getX(),outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
+            aproximationErrorPoints.add(outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
         }
         chartHolder.addApproximationPlotToApproximationChart();
 
+        double error = 0;
+        for(int i=0;i<input.size();i++) {
+            error = error + (input.get(i).getY() - aproximationErrorPoints.get(i)) * (input.get(i).getY() - aproximationErrorPoints.get(i));
+        }
 
+        System.out.println("Błąd średniokwadratowy: " + error);
 //        //KMEANS error
 //        for (int i = 0; i < kMeans.getErrorList().size(); i++) {
 //            chartHolder.addPointsToKmeansOutput(i + 1, kMeans.getErrorList().get(i));
