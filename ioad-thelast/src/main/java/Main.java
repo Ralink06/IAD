@@ -1,3 +1,4 @@
+import kmeans.KMeans;
 import kmeans.Point;
 import model.MLP;
 
@@ -11,7 +12,7 @@ public class Main {
     private static double LEARNING_RATE = 0.2;
     private static int MAX_ITERATIONS = 1000;
     private static double MIN_ERROR = 0.01;
-    private static int centroidsNumber = 12;
+    private static int centroidsNumber = 5;
     private static boolean bias = true;
 
     private static File numbers = new File(Main.class.getClassLoader().getResource("numbers.txt").getFile());
@@ -20,8 +21,13 @@ public class Main {
 
 
     public static void main(String[] args) throws FileNotFoundException {
+        Queue<KMeans> fiveAttempts = new PriorityQueue<>(Comparator.comparingDouble(KMeans::getEndError));
+        for (int i = 0; i < 20; i++) {
+            fiveAttempts.add(new KMeans(readTrainingData(training1), centroidsNumber));
+        }
 
-        MLP mlp = new MLP(readTrainingData(numbers), readTrainingData(training1), null, centroidsNumber, LEARNING_RATE, MIN_ERROR, MAX_ITERATIONS, bias);
+        MLP mlp = new MLP(readTrainingData(numbers), readTrainingData(training1), fiveAttempts.poll(),
+                centroidsNumber, LEARNING_RATE, MIN_ERROR, MAX_ITERATIONS, bias);
         mlp.train();
 
     }

@@ -53,7 +53,7 @@ public class MLP {
         this.input = input;
         this.bias = bias;
         this.iteration = iteration;
-        this.training=training;
+        this.training = training;
     }
 
 
@@ -61,13 +61,7 @@ public class MLP {
 
         //hidden train
         LocalTime startTime = LocalTime.now();
-        Queue<KMeans> fiveAttempts = new PriorityQueue<>(Comparator.comparingDouble(KMeans::getEndError));
 
-        for (int i = 0; i < 20; i++) {
-            fiveAttempts.add(new KMeans(training, hiddenSize));
-        }
-
-        this.kMeans = fiveAttempts.poll();
         List<Point> centroidsToHidden = getCentroidsFromKMeans(kMeans.getClusters());
         for (int i = 0; i < hiddenSize; i++) {
             hiddenLayer.addNeuron(new RadialNeuron(centroidsToHidden.get(i)));
@@ -99,8 +93,8 @@ public class MLP {
 
 //        outputLayer.getNeuron().getWeights().forEach(System.out::println);
         System.out.println("Czas uczenia ukrytej: " + ChronoUnit.MILLIS.between(startTime, endTime) + " ms");
-        System.out.println("Czas uczenia wyjsciowej: " + ChronoUnit.MILLIS.between(startTimeOutput,endTimeOutput)+ " ms");
-        System.out.println("Iteracje: "  + i );
+        System.out.println("Czas uczenia wyjsciowej: " + ChronoUnit.MILLIS.between(startTimeOutput, endTimeOutput) + " ms");
+        System.out.println("Iteracje: " + i);
         System.out.println("Błąd koncowy KMeans: " + kMeans.getEndError());
         System.out.println("Błąd koncowy wyjsciowy: " + outputErrorList.get(i - 1));
 
@@ -137,14 +131,14 @@ public class MLP {
 //            min = min + 8 / 1000.0;
 //        }
         List<Double> aproximationErrorPoints = new ArrayList<>();
-        for(int i=0;i<input.size();i++){
-            chartHolder.addPointsToApproximationPlot(input.get(i).getX(),outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
+        for (int i = 0; i < input.size(); i++) {
+            chartHolder.addPointsToApproximationPlot(input.get(i).getX(), outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
             aproximationErrorPoints.add(outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
         }
         chartHolder.addApproximationPlotToApproximationChart();
 
         double error = 0;
-        for(int i=0;i<input.size();i++) {
+        for (int i = 0; i < input.size(); i++) {
             error = error + (input.get(i).getY() - aproximationErrorPoints.get(i)) * (input.get(i).getY() - aproximationErrorPoints.get(i));
         }
 
