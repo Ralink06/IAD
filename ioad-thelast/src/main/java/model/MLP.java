@@ -131,6 +131,7 @@ public class MLP {
 //            min = min + 8 / 1000.0;
 //        }
         List<Double> aproximationErrorPoints = new ArrayList<>();
+        input.sort((a,b) -> Double.compare(a.getX(),b.getX()));
         for (int i = 0; i < input.size(); i++) {
             chartHolder.addPointsToApproximationPlot(input.get(i).getX(), outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));
             aproximationErrorPoints.add(outputLayer.calculateOutput(hiddenLayer.calculateOutput(input.get(i).getX())));

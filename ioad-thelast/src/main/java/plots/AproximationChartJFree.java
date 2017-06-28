@@ -52,7 +52,7 @@ public class AproximationChartJFree extends ApplicationFrame {
         renderer.setSeriesPaint(1, Color.BLUE);
         renderer.setSeriesVisible(2,false);
 
-        for(int i=0;i<80;i++){
+        for(int i=0;i<999;i++){
             ((XYPlot) jfreechart.getPlot()).addAnnotation(new XYLineAnnotation((double) dataset.getSeries(2).getX(i),(double) dataset.getSeries(2).getY(i),(double) dataset.getSeries(2).getX(i+1),(double) dataset.getSeries(2).getY(i+1)));
         }
         //((XYPlot) jfreechart.getPlot()).addAnnotation(new XYLineAnnotation(-1,-1,1,1));
